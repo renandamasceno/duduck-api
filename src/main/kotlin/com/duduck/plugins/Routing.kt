@@ -1,5 +1,6 @@
 package com.duduck.plugins
 
+import com.duduck.routes.registerSubscriptionRoutes
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -10,4 +11,5 @@ fun Application.configureRouting() {
             call.respondText("Hello World!")
         }
     }
+    registerSubscriptionRoutes()
 }

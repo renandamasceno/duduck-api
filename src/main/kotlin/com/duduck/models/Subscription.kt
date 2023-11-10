@@ -7,13 +7,13 @@ import org.jetbrains.exposed.sql.Table
 
 
 object Subscriptions : Table() {
-    val id: Column<Int> = integer("id")
+    val id: Column<String> = char("id",36)
     val name: Column<String> = varchar("name", 50)
     val image: Column<String> = varchar("image", 144)
     val price: Column<Double> = double("price")
     val description: Column<String> = varchar("description", 512)
 
-    override val primaryKey = PrimaryKey(id, name = "PK_Subscriptions_ID")
+    override val primaryKey = PrimaryKey(id, name = "PK_Subscriptions_Id")
 
     fun toSubscription(row: ResultRow): Subscription = Subscription(
         id = row[Subscriptions.id],
@@ -26,7 +26,7 @@ object Subscriptions : Table() {
 
 @Serializable
 data class Subscription(
-    var id: Int,
+    var id: String? = null,
     var name: String?,
     var image: String? = null,
     var price: Double?,
