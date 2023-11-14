@@ -9,11 +9,11 @@ import org.jetbrains.exposed.sql.Table
 object Users : Table() {
     val id: Column<String> = char("id", 36)
     val email: Column<String> = varchar("email", 56)
-    val password: Column<String> = varchar("email", 32)
+    val password: Column<String> = varchar("password", 32)
 
     override val primaryKey = PrimaryKey(id, name = "PK_Users_ID")
 
-    fun toUsers(row: ResultRow) : User  = User(
+    fun toUsers(row: ResultRow): User = User(
         id = row[id],
         email = row[email],
         password = row[password]

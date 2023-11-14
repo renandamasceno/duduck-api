@@ -1,5 +1,6 @@
 package com.duduck.routes
 
+import com.duduck.models.Subscriptions
 import com.duduck.models.User
 import com.duduck.models.Users
 import io.ktor.http.*
@@ -47,6 +48,7 @@ fun Route.userRouting() {
             user.id = UUID.randomUUID().toString()
             transaction {
                 Users.insert {
+                    it[id] = user.id!!
                     it[email] = user.email
                     it[password] = user.password
                 }
