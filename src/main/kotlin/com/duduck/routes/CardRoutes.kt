@@ -2,7 +2,6 @@ package com.duduck.routes
 
 import com.duduck.models.Card
 import com.duduck.models.Cards
-import com.duduck.models.Users
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -10,51 +9,42 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 fun Route.cardRouting() {
-    route("/cards") {
+    route("/{usersId}/cards") {
         get {
-            val cards = transaction {
-                Cards.selectAll().map { Users.toUsers(it) }
-            }
-
-            return@get call.respond(cards)
-        }
-
-        get("id") {
-            val id = call.parameters["id"] ?: return@get call.respondText(
-                "Card not found!",
+            val userID = call.parameters["usersId"] ?: return@get call.respondText(
+                "UserId not found!",
                 status = HttpStatusCode.NotFound
             )
 
-            val cards: List<Card> = transaction {
-                Cards.select { Cards.id eq id }.map { Cards.toCards(it) }
+            val cards = transaction {
+                Cards.select { Cards.userId eq userID }
+                    .map { Cards.toCards(it) }
             }
-
-            if (cards.isNotEmpty()) {
-                return@get call.respond(cards.first())
-            }
-            return@get call.respondText("Card not found!")
-
+            return@get call.respond(cards)
         }
 
         post {
+            val userID = call.parameters["usersId"] ?: return@post call.respondText(
+                "UserId not found!",
+                status = HttpStatusCode.NotFound
+            )
             val card = call.receive<Card>()
-
-            card.id = UUID.randomUUID().toString()
 
             transaction {
                 Cards.insert {
-                    it[id] = card.id!!
+                    it[id] = card.id ?: UUID.randomUUID().toString()
+                    it[userId] = userID
                     it[nameUser] = card.nameUser
                     it[number] = card.number
                     it[expirationDate] = card.expirationDate
                     it[cardIssuer] = card.cardIssuer
                 }
             }
+            return@post call.respondText("Card created for user $userID!", status = HttpStatusCode.Created)
         }
     }
 

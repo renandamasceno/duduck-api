@@ -11,6 +11,7 @@ object Cards : Table() {
     val number: Column<String> = varchar("number", 56)
     val expirationDate: Column<String> = varchar("expirationDate", 36)
     val cardIssuer: Column<String> = varchar("cardIssuer", 36)
+    val userId: Column<String> = char("user_id", 36) references Users.id
 
     override val primaryKey = PrimaryKey(id, name = "PK_Cards_Id")
 
@@ -19,13 +20,15 @@ object Cards : Table() {
         nameUser = row[nameUser],
         number = row[number],
         expirationDate = row[expirationDate],
-        cardIssuer = row[cardIssuer]
+        cardIssuer = row[cardIssuer],
+        userId = row[userId]
     )
 }
 
 @Serializable
 data class Card(
     var id: String? = null,
+    val userId: String? = null,
     val nameUser: String,
     val number: String,
     val expirationDate: String,
