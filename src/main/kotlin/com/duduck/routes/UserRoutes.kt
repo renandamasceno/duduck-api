@@ -104,10 +104,10 @@ fun Route.userRouting() {
                 "Insert a valid id!",
                 status = HttpStatusCode.BadRequest
             )
-            val delete: Int = transaction {
+            val isDeleted: Int = transaction {
                 Users.deleteWhere { Users.id eq id }
             }
-            if (delete == 1) {
+            if (isDeleted == 1) {
                 return@delete call.respondText("Deleted!", status = HttpStatusCode.OK)
             }
             return@delete call.respondText("Id not found!", status = HttpStatusCode.NotFound)

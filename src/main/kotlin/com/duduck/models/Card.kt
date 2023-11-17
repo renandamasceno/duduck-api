@@ -29,8 +29,8 @@ object Cards : Table() {
 data class Card(
     var id: String? = null,
     val userId: String? = null,
-    val nameUser: String,
-    val number: String,
-    val expirationDate: String,
-    val cardIssuer: String = ""
+    val nameUser: String? = null,
+    val number: String? = null,
+    val expirationDate: String? = null,
+    val cardIssuer: String? = null
 )
