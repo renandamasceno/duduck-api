@@ -2,16 +2,14 @@ package com.duduck.routes
 
 import com.duduck.models.Subscription
 import com.duduck.models.Subscriptions
+import com.duduck.models.UserSubscriptions
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.UUID
 
@@ -25,7 +23,7 @@ fun Route.subscriptionRouting() {
             return@get call.respond(subscriptions)
         }
 
-        get("id") {
+        get("{id}") {
             val id = call.parameters["id"] ?: return@get call.respondText(
                 "Subscription not found!",
                 status = HttpStatusCode.NotFound
@@ -58,7 +56,60 @@ fun Route.subscriptionRouting() {
             call.respondText("New subscription created!", status = HttpStatusCode.Created)
         }
 
-        delete("id") {
+        put("{id}") {
+            val id = call.parameters["id"] ?: return@put call.respondText(
+                "Insert a valid id!",
+                status = HttpStatusCode.BadRequest
+            )
+            val updatedSubscription = call.receive<Subscription>()
+
+            val updatedRowCount = transaction {
+                Subscriptions.update({ Subscriptions.id eq id }) {
+                    it[name] = updatedSubscription.name!!
+                    it[image] = updatedSubscription.image!!
+                    it[price] = updatedSubscription.price!!
+                    it[description] = updatedSubscription.description!!
+                }
+            }
+
+            if (updatedRowCount == 1) {
+                return@put call.respondText("Subscription with ID $id updated!")
+            }
+            return@put call.respondText("Subscription with ID $id not found!")
+        }
+
+        patch("{id}") {
+            val id = call.parameters["id"] ?: return@patch call.respondText(
+                "Insert a valid id!",
+                status = HttpStatusCode.BadRequest
+            )
+
+            val existingSubscription = transaction {
+                Subscriptions.select { (Subscriptions.id eq id) }
+                    .map { Subscriptions.toSubscription(it) }
+                    .firstOrNull()
+            }
+
+            if (existingSubscription != null) {
+                val partialSubscrition = call.receive<Subscription>()
+
+                transaction {
+                    Subscriptions.update({ Subscriptions.id eq id }) {
+                        partialSubscrition.name?.let { name -> it[Subscriptions.name] = name }
+                        partialSubscrition.image?.let { image -> it[Subscriptions.image] = image }
+                        partialSubscrition.price?.let { price -> it[Subscriptions.price] = price }
+                        partialSubscrition.description?.let { description ->
+                            it[Subscriptions.description] = description
+                        }
+                    }
+                }
+                return@patch call.respond(HttpStatusCode.OK, "Subscritption partial updated!")
+            }
+            call.respond(HttpStatusCode.NotFound, "Subscription not found!")
+
+        }
+
+        delete("{id}") {
             val id = call.parameters["id"] ?: return@delete call.respondText(
                 "Insert a valid id!",
                 status = HttpStatusCode.BadRequest
@@ -70,6 +121,60 @@ fun Route.subscriptionRouting() {
                 return@delete call.respondText("Deleted!", status = HttpStatusCode.OK)
             }
             return@delete call.respondText("Subscription not found!", status = HttpStatusCode.NotFound)
+        }
+    }
+
+    route("/subscriptions/{usersId}") {
+        get("/subscriptionList") {
+            val userID = call.parameters["usersId"] ?: return@get call.respondText(
+                "UserId not found!!",
+                status = HttpStatusCode.NotFound
+            )
+
+            val userSubscriptions = transaction {
+                (UserSubscriptions innerJoin Subscriptions)
+                    .select { UserSubscriptions.userId eq userID }
+                    .map { Subscriptions.toSubscription(it) }
+            }
+
+            if (userSubscriptions.isNotEmpty()) {
+                return@get call.respond(userSubscriptions)
+            }
+            return@get call.respond(HttpStatusCode.NotFound, "No subscriptions found for user $userID!")
+        }
+
+        post("{subscriptionId}") {
+            val userID = call.parameters["usersId"] ?: return@post call.respondText(
+                "UserId not found!!",
+                status = HttpStatusCode.NotFound
+            )
+
+            val subscriptionId = call.parameters["subscriptionId"] ?: return@post call.respondText(
+                "SubscriptionId not found!",
+                status = HttpStatusCode.NotFound
+            )
+            val existingSubscription = transaction {
+                Subscriptions.select { Subscriptions.id eq subscriptionId }
+                    .map { Subscriptions.toSubscription(it) }
+                    .firstOrNull()
+            }
+
+            if (existingSubscription != null) {
+                transaction {
+                    UserSubscriptions.insert {
+                        it[UserSubscriptions.userId] = userID
+                        it[UserSubscriptions.subscriptionId] = subscriptionId
+                    }
+                }
+                return@post call.respondText(
+                    "User associated with existing subscription!",
+                    status = HttpStatusCode.Created
+                )
+            }
+            return@post call.respondText(
+                "Subscription not found!",
+                status = HttpStatusCode.NotFound
+            )
         }
     }
 }

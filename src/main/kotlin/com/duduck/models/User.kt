@@ -19,12 +19,16 @@ object Users : Table() {
     fun toUsers(row: ResultRow): User = transaction {
         val cards = Cards.select { userId eq row[Users.id] }
             .map { Cards.toCards(it) }
+        val subscriptions = Subscriptions.innerJoin(UserSubscriptions)
+            .select { UserSubscriptions.userId eq row[Users.id] }
+            .map { Subscriptions.toSubscription(it) }
 
         User(
             id = row[Users.id],
             email = row[email],
             password = row[password],
-            cards = cards
+            cards = cards,
+            subscriptions = subscriptions
         )
     }
 
@@ -35,5 +39,6 @@ data class User(
     var id: String? = null,
     val email: String? = null,
     val password: String? = null,
-    val cards: List<Card> = emptyList()
+    val cards: List<Card> = emptyList(),
+    val subscriptions: List<Subscription> = emptyList()
 )
