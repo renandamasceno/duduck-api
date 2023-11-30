@@ -1,6 +1,7 @@
 package com.duduck.models
 
 import com.duduck.models.Cards.userId
+import io.ktor.auth.*
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.ResultRow
@@ -41,4 +42,4 @@ data class User(
     val password: String? = null,
     val cards: List<Card> = emptyList(),
     val subscriptions: List<Subscription> = emptyList()
-)
+) : Principal

@@ -1,9 +1,12 @@
 package com.duduck.routes
 
+import com.auth0.jwt.JWT
+import com.duduck.jwtConfig.JwtConfig
 import com.duduck.models.User
 import com.duduck.models.Users
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -49,7 +52,15 @@ fun Route.userRouting() {
                     it[password] = user.password!!
                 }
             }
-            return@post call.respondText("New User created!", status = HttpStatusCode.Created)
+
+            val token = JWT.create()
+                .withSubject("Authentication")
+                .withIssuer(JwtConfig.issuer)
+                .withClaim("email", user.email)
+                .withClaim("password", user.password)
+                .sign(JwtConfig.algorithm)
+
+            return@post call.respond(mapOf("token" to token))
         }
 
         put("{id}") {

@@ -1,5 +1,6 @@
 package com.duduck.plugins
 
+import com.duduck.routes.loginRoutes
 import com.duduck.routes.registerCardRoutes
 import com.duduck.routes.registerSubscriptionRoutes
 import com.duduck.routes.registerUserRoutes
@@ -11,4 +12,5 @@ fun Application.configureRouting() {
     registerSubscriptionRoutes()
     registerUserRoutes()
     registerCardRoutes()
+    loginRoutes()
 }
