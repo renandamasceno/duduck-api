@@ -23,6 +23,15 @@ application {
 repositories {
     mavenCentral()
 }
+tasks.jar {
+    // for the case if inside your project there is some duplicate
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest.attributes["Main-Class"] = "com.duduck.ApplicationKt"
+    configurations["compileClasspath"].forEach { file: File ->
+        from(zipTree(file.absoluteFile))
+    }
+    archiveBaseName.set(project.name + "-all")
+}
 
 dependencies {
     implementation("io.ktor:ktor-server-core-jvm")
