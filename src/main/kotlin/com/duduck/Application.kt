@@ -26,6 +26,9 @@ fun Application.module() {
         allowMethod(HttpMethod.Patch)
         allowHeader(HttpHeaders.Authorization)
         allowHeader("Authorization")
+        allowHeader(HttpHeaders.AccessControlAllowOrigin)
+        allowHeader(HttpHeaders.ContentType)
+        allowHeader(HttpHeaders.ContentLength)
         anyHost()
     }
 
