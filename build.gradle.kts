@@ -46,6 +46,9 @@ dependencies {
     implementation("io.ktor:ktor-auth-jwt:1.6.8")
     implementation("io.ktor:ktor-server-auth-jvm:2.3.6")
     implementation("io.ktor:ktor-server-auth-jwt-jvm:2.3.6")
+    implementation("io.github.jan-tennert.supabase:[module]:VERSION")
+    implementation ("io.ktor:ktor-features:$ktor_version")
+    implementation("io.ktor:ktor-server-cors-jvm:2.3.6")
 
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
