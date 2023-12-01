@@ -10,7 +10,7 @@ import org.jetbrains.exposed.sql.Table
 object Subscriptions : Table() {
     val id: Column<String> = char("id", 36)
     val name: Column<String> = varchar("name", 56)
-    val image: Column<String> = varchar("image", 144)
+    val image: Column<String> = varchar("image", 300)
     val price: Column<Double> = double("price")
     val description: Column<String> = varchar("description", 512)
 
