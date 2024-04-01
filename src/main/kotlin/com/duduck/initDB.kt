@@ -10,11 +10,12 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 fun initDB() {
     Database.connect(
-        "jdbc:postgresql://db.mmivfgemdqlobacwepav.supabase.co:5432/duduck",
+        "jdbc:postgresql://aws-0-sa-east-1.pooler.supabase.com:5432/postgres?user=postgres.mmivfgemdqlobacwepav&password=@Jrfd1611Duduck",
         driver = "org.postgresql.Driver",
         user = "postgres",
         password = "@Jrfd1611Duduck"
     )
+
 
     transaction {
         SchemaUtils.create(Subscriptions)
