@@ -10,10 +10,10 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 fun initDB() {
     Database.connect(
-        "jdbc:postgresql://aws-0-sa-east-1.pooler.supabase.com:5432/postgres?user=postgres.mmivfgemdqlobacwepav&password=@Jrfd1611Duduck",
-        driver = "org.postgresql.Driver",
-        user = "postgres",
-        password = "@Jrfd1611Duduck"
+        url = System.getenv("DATABASE_URL"),
+        driver = System.getenv("DATABASE_DRIVER"),
+        user = System.getenv("DATABASE_USER"),
+        password = System.getenv("DATABASE_PASSWORD")
     )
 
 
