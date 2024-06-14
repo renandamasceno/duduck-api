@@ -176,7 +176,42 @@ fun Route.subscriptionRouting() {
                 status = HttpStatusCode.NotFound
             )
         }
+
+        delete("{subscriptionId}") {
+            val userID = call.parameters["usersId"] ?: return@delete call.respondText(
+                "Usuário não encontrado!",
+                status = HttpStatusCode.NotFound
+            )
+
+            val subscriptionId = call.parameters["subscriptionId"] ?: return@delete call.respondText(
+                "ID da assinatura não encontrado!",
+                status = HttpStatusCode.NotFound
+            )
+
+            val userSubscription = transaction {
+                UserSubscriptions.select {
+                    (UserSubscriptions.userId eq userID) and (UserSubscriptions.subscriptionId eq subscriptionId)
+                }.firstOrNull()
+            }
+
+            if (userSubscription != null) {
+                transaction {
+                    UserSubscriptions.deleteWhere {
+                        (UserSubscriptions.userId eq userID) and (UserSubscriptions.subscriptionId eq subscriptionId)
+                    }
+                }
+                return@delete call.respondText(
+                    "Assinatura removida com sucesso!",
+                    status = HttpStatusCode.OK
+                )
+            }
+            return@delete call.respondText(
+                "Assinatura não encontrada para o usuário!",
+                status = HttpStatusCode.NotFound
+            )
+        }
     }
+
 }
 
 fun Application.registerSubscriptionRoutes() {
