@@ -34,6 +34,8 @@ tasks.jar {
 }
 
 dependencies {
+    implementation("io.ktor:ktor-serialization-jackson:$ktor_version")
+
     implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-server-content-negotiation-jvm")
     implementation("io.ktor:ktor-serialization-kotlinx-json-jvm")
